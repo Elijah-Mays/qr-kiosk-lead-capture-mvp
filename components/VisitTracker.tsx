@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 
 const VISIT_TTL_MS = 30 * 60 * 1000;
+const VISITOR_ID_STORAGE_KEY = 'qr-kiosk-visitor-id';
 
 type VisitTrackerProps = {
   adId: string;
@@ -10,6 +11,13 @@ type VisitTrackerProps = {
 
 export function VisitTracker({ adId }: VisitTrackerProps) {
   useEffect(() => {
+    let visitorId = window.localStorage.getItem(VISITOR_ID_STORAGE_KEY);
+
+    if (!visitorId) {
+      visitorId = window.crypto.randomUUID();
+      window.localStorage.setItem(VISITOR_ID_STORAGE_KEY, visitorId);
+    }
+
     const storageKey = `qr-kiosk-visit:${adId}`;
     const lastTrackedAt = window.sessionStorage.getItem(storageKey);
     const now = Date.now();
@@ -30,7 +38,8 @@ export function VisitTracker({ adId }: VisitTrackerProps) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        ad_id: adId
+        ad_id: adId,
+        visitor_id: visitorId
       }),
       keepalive: true
     }).catch(() => {

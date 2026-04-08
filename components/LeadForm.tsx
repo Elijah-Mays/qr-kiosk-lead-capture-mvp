@@ -6,9 +6,12 @@ import { isEmail, isNonEmpty } from '@/lib/validation';
 
 type LeadFormProps = {
   adId: string;
+  advertiserName: string;
+  adTitle: string;
+  redemptionInstructions: string;
 };
 
-export function LeadForm({ adId }: LeadFormProps) {
+export function LeadForm({ adId, advertiserName, adTitle, redemptionInstructions }: LeadFormProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -64,9 +67,15 @@ export function LeadForm({ adId }: LeadFormProps) {
   if (submitted) {
     return (
       <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-6">
-        <h2 className="text-xl font-semibold text-emerald-950">Thanks! We will be in touch.</h2>
-        <p className="mt-2 text-sm leading-6 text-emerald-900">
-          Your details have been received successfully.
+        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-emerald-900">Redemption Confirmed</p>
+        <h2 className="mt-3 text-2xl font-semibold text-emerald-950">You&apos;re in.</h2>
+        <p className="mt-4 text-sm font-medium text-emerald-950">{advertiserName}</p>
+        <p className="mt-1 text-lg font-semibold text-emerald-950">{adTitle}</p>
+        <div className="mt-5 rounded-2xl bg-white px-4 py-4 text-sm leading-6 text-emerald-950">
+          {redemptionInstructions}
+        </div>
+        <p className="mt-4 text-sm leading-6 text-emerald-900">
+          Show this screen to staff to redeem.
         </p>
       </div>
     );

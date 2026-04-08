@@ -13,6 +13,7 @@ create table if not exists public.ads (
   slug text not null unique,
   title text not null,
   offer_text text not null,
+  redemption_instructions text,
   logo_url text,
   active boolean not null default true,
   created_at timestamptz not null default now()

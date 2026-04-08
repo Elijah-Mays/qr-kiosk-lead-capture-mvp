@@ -18,13 +18,14 @@ export default async function AdPage({ params }: AdPageProps) {
   }
 
   const supabase = createSupabaseServerClient();
-  const { data, error } = await supabase
+  const primaryResult = await supabase
     .from('ads')
     .select(
       `
         id,
         title,
         offer_text,
+        redemption_instructions,
         logo_url,
         active,
         advertiser:advertisers(name)
@@ -33,12 +34,38 @@ export default async function AdPage({ params }: AdPageProps) {
     .eq('id', params.adId)
     .maybeSingle();
 
+  const fallbackResult =
+    primaryResult.error?.code === '42703'
+      ? await supabase
+          .from('ads')
+          .select(
+            `
+              id,
+              title,
+              offer_text,
+              logo_url,
+              active,
+              advertiser:advertisers(name)
+            `
+          )
+          .eq('id', params.adId)
+          .maybeSingle()
+      : null;
+
+  const data = (fallbackResult?.data ?? primaryResult.data ?? null) as unknown as AdPageQueryRow | null;
+  const error = fallbackResult?.error ?? primaryResult.error;
+
+  if (primaryResult.error?.code === '42703') {
+    // Use a generic redemption fallback until the new column exists in the live pilot DB.
+  }
+
   const row = (data as AdPageQueryRow | null) ?? null;
   const ad: AdPageRecord | null = row
     ? {
         id: row.id,
         title: row.title,
         offer_text: row.offer_text,
+        redemption_instructions: row.redemption_instructions ?? null,
         logo_url: row.logo_url,
         active: row.active,
         advertiser: Array.isArray(row.advertiser) ? (row.advertiser[0] ?? null) : row.advertiser
@@ -74,7 +101,14 @@ export default async function AdPage({ params }: AdPageProps) {
           <p className="mt-4 text-base leading-7 text-slate sm:text-lg">{ad.offer_text}</p>
         </section>
 
-        <LeadForm adId={ad.id} />
+        <LeadForm
+          adId={ad.id}
+          advertiserName={ad.advertiser?.name ?? 'Featured offer'}
+          adTitle={ad.title}
+          redemptionInstructions={
+            ad.redemption_instructions ?? 'Show this screen to staff to redeem your offer.'
+          }
+        />
       </div>
     </main>
   );

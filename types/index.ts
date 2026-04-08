@@ -4,6 +4,7 @@ export type AdPageRecord = {
   id: string;
   title: string;
   offer_text: string;
+  redemption_instructions: string | null;
   logo_url: string | null;
   active: boolean;
   advertiser: {
@@ -15,6 +16,7 @@ export type AdPageQueryRow = {
   id: string;
   title: string;
   offer_text: string;
+  redemption_instructions: string | null;
   logo_url: string | null;
   active: boolean;
   advertiser:
@@ -58,4 +60,10 @@ export type LeadQueryRow = {
 
 export type LoginFormState = {
   error: string | null;
+};
+
+export type AdSetupFormState = {
+  error: string | null;
+  publicUrl: string | null;
+  absoluteUrl: string | null;
 };

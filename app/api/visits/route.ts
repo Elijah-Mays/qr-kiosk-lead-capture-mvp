@@ -27,7 +27,21 @@ export async function POST(request: Request) {
   const forwardedFor = request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip') ?? '';
   const clientIp = forwardedFor.split(',')[0]?.trim() ?? '';
   const ipHash = clientIp ? createHash('sha256').update(clientIp).digest('hex') : null;
+  const globalDedupeSince = new Date(Date.now() - 5_000).toISOString();
   const dedupeSince = new Date(Date.now() - 10_000).toISOString();
+
+  const { data: recentVisit, error: recentVisitError } = await supabase
+    .from('ad_visits')
+    .select('id')
+    .eq('ad_id', adId)
+    .gte('visited_at', globalDedupeSince)
+    .order('visited_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (!recentVisitError && recentVisit) {
+    return NextResponse.json({ success: true, deduped: true, strategy: 'recent-ad-window' });
+  }
 
   const dedupeQueries = [];
 

@@ -9,12 +9,15 @@ import type {
   LeadQueryRow,
   LeadRow
 } from '@/types';
+import { unstable_noStore as noStore } from 'next/cache';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default async function AdminPage() {
+  noStore();
+
   const supabase = createSupabaseServerClient();
   const origin = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 

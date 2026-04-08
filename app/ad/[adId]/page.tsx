@@ -1,5 +1,6 @@
 import { LeadForm } from '@/components/LeadForm';
 import { OfferState } from '@/components/OfferState';
+import { VisitTracker } from '@/components/VisitTracker';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { isUuid } from '@/lib/validation';
 import type { AdPageQueryRow, AdPageRecord } from '@/types';
@@ -80,16 +81,9 @@ export default async function AdPage({ params }: AdPageProps) {
     return <OfferState message="This promotion has ended." />;
   }
 
-  try {
-    await supabase.from('ad_visits').insert({
-      ad_id: ad.id
-    });
-  } catch {
-    // Visit tracking should never interrupt the public ad experience.
-  }
-
   return (
     <main className="min-h-screen px-4 py-8 sm:py-12">
+      <VisitTracker adId={ad.id} />
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
         <section className="rounded-[2rem] border border-border bg-white p-6 shadow-soft sm:p-8">
           {ad.logo_url ? (

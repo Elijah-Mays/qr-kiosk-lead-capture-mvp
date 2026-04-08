@@ -30,11 +30,10 @@ export default async function AdminPage() {
             id,
             created_at,
             ad_id,
+            advertiser_id,
             name,
             email,
-            phone,
-            advertiser:advertisers(name),
-            ad:ads(title)
+            phone
           `
         )
         .order('created_at', { ascending: false })
@@ -57,18 +56,6 @@ export default async function AdminPage() {
 
   const visitData = visitResult.error ? [] : visitResult.data ?? [];
 
-  const rows = recentLeadError ? [] : ((recentLeadData as LeadQueryRow[] | null) ?? []);
-  const leads: LeadRow[] = rows.map((row) => ({
-    id: row.id,
-    created_at: row.created_at,
-    ad_id: row.ad_id,
-    name: row.name,
-    email: row.email,
-    phone: row.phone,
-    advertiser: Array.isArray(row.advertiser) ? (row.advertiser[0] ?? null) : row.advertiser,
-    ad: Array.isArray(row.ad) ? (row.ad[0] ?? null) : row.ad
-  }));
-
   const ads = adError ? [] : (((adData as AdminDashboardAdQueryRow[] | null) ?? []).map((row): AdminDashboardAdRow => ({
     id: row.id,
     title: row.title,
@@ -76,6 +63,24 @@ export default async function AdminPage() {
     created_at: row.created_at,
     advertiser: Array.isArray(row.advertiser) ? (row.advertiser[0] ?? null) : row.advertiser
   })));
+
+  const adsById = new Map(ads.map((ad) => [ad.id, ad]));
+  const rows = recentLeadError ? [] : ((recentLeadData as LeadQueryRow[] | null) ?? []);
+  const leads: LeadRow[] = rows.map((row) => {
+    const ad = adsById.get(row.ad_id);
+
+    return {
+      id: row.id,
+      created_at: row.created_at,
+      ad_id: row.ad_id,
+      advertiser_id: row.advertiser_id ?? null,
+      name: row.name,
+      email: row.email,
+      phone: row.phone,
+      advertiser: ad?.advertiser ?? null,
+      ad: ad ? { title: ad.title } : null
+    };
+  });
 
   const leadMetrics = leadMetricError ? [] : (leadMetricData ?? []);
 

@@ -33,6 +33,7 @@ export type LeadRow = {
   id: string;
   created_at: string;
   ad_id: string;
+  advertiser_id: string | null;
   name: string;
   email: string;
   phone: string;
@@ -48,6 +49,7 @@ export type LeadQueryRow = {
   id: string;
   created_at: string;
   ad_id: string;
+  advertiser_id?: string | null;
   name: string;
   email: string;
   phone: string;

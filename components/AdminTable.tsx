@@ -24,7 +24,7 @@ export function AdminTable({ leads }: AdminTableProps) {
           <thead className="bg-slate-50">
             <tr className="text-sm font-semibold text-ink">
               <th className="px-4 py-3">Date</th>
-              <th className="px-4 py-3">Ad ID</th>
+              <th className="px-4 py-3">Advertiser</th>
               <th className="px-4 py-3">Ad Title</th>
               <th className="px-4 py-3">Name</th>
               <th className="px-4 py-3">Email</th>
@@ -35,7 +35,7 @@ export function AdminTable({ leads }: AdminTableProps) {
             {leads.map((lead) => (
               <tr key={lead.id} className="align-top">
                 <td className="px-4 py-3 text-ink">{formatDate(lead.created_at)}</td>
-                <td className="px-4 py-3 font-mono text-xs text-ink">{lead.ad_id}</td>
+                <td className="px-4 py-3">{lead.advertiser?.name ?? 'Unknown advertiser'}</td>
                 <td className="px-4 py-3">{lead.ad?.title ?? 'Unknown ad'}</td>
                 <td className="px-4 py-3">{lead.name}</td>
                 <td className="px-4 py-3">{lead.email}</td>

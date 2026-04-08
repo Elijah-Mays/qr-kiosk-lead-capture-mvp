@@ -36,6 +36,9 @@ export type LeadRow = {
   name: string;
   email: string;
   phone: string;
+  advertiser: {
+    name: string;
+  } | null;
   ad: {
     title: string;
   } | null;
@@ -48,6 +51,14 @@ export type LeadQueryRow = {
   name: string;
   email: string;
   phone: string;
+  advertiser:
+    | {
+        name: string;
+      }
+    | {
+        name: string;
+      }[]
+    | null;
   ad:
     | {
         title: string;
@@ -66,4 +77,42 @@ export type AdSetupFormState = {
   error: string | null;
   publicUrl: string | null;
   absoluteUrl: string | null;
+};
+
+export type AdminDashboardAdRow = {
+  id: string;
+  title: string;
+  active: boolean;
+  created_at: string;
+  advertiser: {
+    name: string;
+  } | null;
+};
+
+export type AdminDashboardAdQueryRow = {
+  id: string;
+  title: string;
+  active: boolean;
+  created_at: string;
+  advertiser:
+    | {
+        name: string;
+      }
+    | {
+        name: string;
+      }[]
+    | null;
+};
+
+export type AdminPerformanceRow = {
+  id: string;
+  advertiserName: string;
+  title: string;
+  active: boolean;
+  visits: number;
+  leads: number;
+  conversionRate: number;
+  lastVisit: string | null;
+  lastLead: string | null;
+  publicUrl: string;
 };

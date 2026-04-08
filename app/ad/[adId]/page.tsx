@@ -80,6 +80,14 @@ export default async function AdPage({ params }: AdPageProps) {
     return <OfferState message="This promotion has ended." />;
   }
 
+  try {
+    await supabase.from('ad_visits').insert({
+      ad_id: ad.id
+    });
+  } catch {
+    // Visit tracking should never interrupt the public ad experience.
+  }
+
   return (
     <main className="min-h-screen px-4 py-8 sm:py-12">
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">

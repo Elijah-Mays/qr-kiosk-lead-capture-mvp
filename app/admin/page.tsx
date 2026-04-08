@@ -1,3 +1,4 @@
+import { AdminDashboardLiveSync } from '@/components/AdminDashboardLiveSync';
 import { AdminPerformanceTable } from '@/components/AdminPerformanceTable';
 import { AdminTable } from '@/components/AdminTable';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
@@ -11,47 +12,46 @@ import type {
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function AdminPage() {
   const supabase = createSupabaseServerClient();
   const origin = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
-  const { data: recentLeadData, error: recentLeadError } = await supabase
-    .from('leads')
-    .select(
-      `
-        id,
-        created_at,
-        ad_id,
-        name,
-        email,
-        phone,
-        advertiser:advertisers(name),
-        ad:ads(title)
-      `
-    )
-    .order('created_at', { ascending: false })
-    .limit(15);
+  const [{ data: recentLeadData, error: recentLeadError }, { data: adData, error: adError }, { data: leadMetricData, error: leadMetricError }, visitResult] =
+    await Promise.all([
+      supabase
+        .from('leads')
+        .select(
+          `
+            id,
+            created_at,
+            ad_id,
+            name,
+            email,
+            phone,
+            advertiser:advertisers(name),
+            ad:ads(title)
+          `
+        )
+        .order('created_at', { ascending: false })
+        .limit(15),
+      supabase
+        .from('ads')
+        .select(
+          `
+            id,
+            title,
+            active,
+            created_at,
+            advertiser:advertisers(name)
+          `
+        )
+        .order('created_at', { ascending: false }),
+      supabase.from('leads').select('id, ad_id, created_at').order('created_at', { ascending: false }),
+      supabase.from('ad_visits').select('id, ad_id, visited_at').order('visited_at', { ascending: false })
+    ]);
 
-  const { data: adData, error: adError } = await supabase
-    .from('ads')
-    .select(
-      `
-        id,
-        title,
-        active,
-        created_at,
-        advertiser:advertisers(name)
-      `
-    )
-    .order('created_at', { ascending: false });
-
-  const { data: leadMetricData, error: leadMetricError } = await supabase
-    .from('leads')
-    .select('id, ad_id, created_at')
-    .order('created_at', { ascending: false });
-
-  const visitResult = await supabase.from('ad_visits').select('id, ad_id, visited_at').order('visited_at', { ascending: false });
   const visitData = visitResult.error ? [] : visitResult.data ?? [];
 
   const rows = recentLeadError ? [] : ((recentLeadData as LeadQueryRow[] | null) ?? []);
@@ -121,6 +121,7 @@ export default async function AdminPage() {
 
   return (
     <main className="min-h-screen px-4 py-8 sm:px-6 sm:py-10">
+      <AdminDashboardLiveSync />
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
         <header className="rounded-3xl border border-border bg-white p-6 shadow-soft">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
